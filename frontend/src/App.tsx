@@ -32,7 +32,18 @@ import {
   Users
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const getApiBase = () => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname.includes('.onrender.com')) {
+    const newHost = window.location.hostname.replace('-frontend', '-api-gateway');
+    return `https://${newHost}/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE = getApiBase();
 
 // Interfaces
 interface Job {
