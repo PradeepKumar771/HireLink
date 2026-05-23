@@ -1,8 +1,7 @@
 services:
   # Frontend Static Site
-  - type: web
+  - type: static
     name: hirelink-frontend
-    env: static
     buildCommand: npm install && npm run build
     publishPath: dist
     headers:
