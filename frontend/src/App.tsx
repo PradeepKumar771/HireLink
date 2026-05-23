@@ -1041,16 +1041,36 @@ export default function App() {
                 </label>
               </div>
 
-              <button type="submit" disabled={loading || bruteForceLocked} className="btn-primary w-full justify-center text-xs py-2.5 mt-2">
+              <button type="submit" disabled={loading || bruteForceLocked} className="btn-primary w-full justify-center text-xs py-2.5 mt-2 transition-all duration-300 relative overflow-hidden">
                 {bruteForceLocked ? (
                   `Security Lockout (${bruteForceCountdown}s)`
                 ) : loading ? (
-                  'Connecting to gateway...'
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Connecting to gateway...
+                  </span>
                 ) : (
-                  'Verify & Enter Terminal'
+                  <span className="flex items-center gap-2">
+                    Verify & Enter Terminal
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
                 )}
-                {!bruteForceLocked && <ArrowRight className="w-4 h-4" />}
               </button>
+
+              {loading && (
+                <div className="mt-4 p-3 bg-indigo-50/70 border border-indigo-100/80 rounded-xl text-center text-[10px] text-slate-500 animate-pulse flex flex-col items-center gap-1.5 shadow-sm">
+                  <div className="font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                    ⚡ Awakening Cloud Microservices
+                  </div>
+                  <div className="leading-relaxed">
+                    Render Free Tier services put databases & servers to sleep after 15 minutes of inactivity. 
+                    <strong className="block text-slate-650 mt-0.5">This initial connection may take 30-40 seconds. Once awake, performance will be instant!</strong>
+                  </div>
+                </div>
+              )}
             </form>
 
             <div className="text-center mt-5 text-xs text-slate-500">
@@ -1177,10 +1197,34 @@ export default function App() {
                 </label>
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full justify-center text-xs py-2.5 mt-2">
-                {loading ? 'Enrolling account...' : 'Create Secure Tenant Account'}
-                <ArrowRight className="w-4 h-4" />
+              <button type="submit" disabled={loading} className="btn-primary w-full justify-center text-xs py-2.5 mt-2 transition-all duration-300 relative overflow-hidden">
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Enrolling account...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Create Secure Tenant Account
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                )}
               </button>
+
+              {loading && (
+                <div className="mt-4 p-3 bg-indigo-50/70 border border-indigo-100/80 rounded-xl text-center text-[10px] text-slate-500 animate-pulse flex flex-col items-center gap-1.5 shadow-sm">
+                  <div className="font-extrabold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                    ⚡ Awakening Cloud Microservices
+                  </div>
+                  <div className="leading-relaxed">
+                    Render Free Tier services put databases & servers to sleep after 15 minutes of inactivity. 
+                    <strong className="block text-slate-650 mt-0.5">This initial connection may take 30-40 seconds. Once awake, performance will be instant!</strong>
+                  </div>
+                </div>
+              )}
             </form>
 
             <div className="text-center mt-5 text-xs text-slate-500">
