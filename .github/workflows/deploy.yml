@@ -1,0 +1,45 @@
+name: Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Workspace
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js v22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+
+    - name: Install Root & Workspace Dependencies
+      run: npm install
+
+    - name: Generate Auth Service Prisma Client
+      run: cd services/auth-service && npx prisma generate
+
+    - name: Generate TNP Core Prisma Client
+      run: cd services/tnp-core-service && npx prisma generate
+
+    - name: Build All Workspaces
+      run: npm run build
+
+  deploy-to-render:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Trigger Render Blueprint Deployment
+      uses: johnbeynon/render-deploy-action@v16.0.0
+      with:
+        service-id: ${{ secrets.RENDER_BLUEPRINT_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}

@@ -1,0 +1,46 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+model Job {
+  id           String        @id @default(uuid())
+  title        String
+  companyName  String
+  description  String
+  skills       String        // Comma-separated required skills
+  minGPA       Float         @default(0.0)
+  major        String        @default("Any")
+  collegeId    String        // Multi-tenant isolation key (e.g. "MIT", "STANFORD")
+  status       String        @default("OPEN") // OPEN, CLOSED
+  applications Application[]
+  createdAt    DateTime      @default(now())
+}
+
+model Application {
+  id           String   @id @default(uuid())
+  jobId        String
+  studentId    String
+  studentName  String
+  studentEmail String
+  collegeId    String   // Tenant isolation check
+  status       String   @default("PENDING") // PENDING, REVIEWED, SELECTED, REJECTED
+  job          Job      @relation(fields: [jobId], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   // Recipient ID
+  collegeId String   // Tenant boundary
+  title     String
+  message   String
+  type      String   // "EMAIL", "ALERT"
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

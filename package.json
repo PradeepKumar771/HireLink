@@ -1,0 +1,24 @@
+{
+  "name": "hirelink-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "api-gateway",
+    "services/auth-service",
+    "services/tnp-core-service",
+    "services/matching-service",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:gateway": "npm run dev --workspace=api-gateway",
+    "dev:auth": "npm run dev --workspace=services/auth-service",
+    "dev:tnp": "npm run dev --workspace=services/tnp-core-service",
+    "dev:matching": "npm run dev --workspace=services/matching-service",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:tnp\" \"npm run dev:matching\" \"npm run dev:frontend\"",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,74 @@
+services:
+  # Frontend Static Site
+  - type: web
+    name: hirelink-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    headers:
+      - key: Cache-Control
+        value: public, max-age=31536000
+
+  # API Gateway Web Service
+  - type: web
+    name: hirelink-api-gateway
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: AUTH_SERVICE_URL
+        value: https://hirelink-auth-service.onrender.com
+      - key: TNP_CORE_SERVICE_URL
+        value: https://hirelink-tnp-core-service.onrender.com
+      - key: MATCHING_SERVICE_URL
+        value: https://hirelink-matching-service.onrender.com
+      - key: JWT_SECRET
+        sync: false
+
+  # Auth Service
+  - type: web
+    name: hirelink-auth-service
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: DATABASE_URL
+        value: mysql://admin:password@aiven-mysql-host:3306/authdb
+      - key: JWT_SECRET
+        sync: false
+
+  # TNP Core Service
+  - type: web
+    name: hirelink-tnp-core-service
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: PORT
+        value: 5002
+      - key: DATABASE_URL
+        value: mysql://admin:password@aiven-mysql-host:3306/tnpdb
+      - key: MATCHING_SERVICE_URL
+        value: https://hirelink-matching-service.onrender.com
+
+  # Matching & Analytics Service
+  - type: web
+    name: hirelink-matching-service
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: PORT
+        value: 5003
+      - key: TNP_CORE_SERVICE_URL
+        value: https://hirelink-tnp-core-service.onrender.com
+      - key: MONGODB_URI
+        sync: false
