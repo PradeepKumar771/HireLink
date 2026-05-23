@@ -39,7 +39,9 @@ services:
       - key: PORT
         value: 5001
       - key: DATABASE_URL
-        value: mysql://admin:password@aiven-mysql-host:3306/authdb
+        fromDatabase:
+          name: hirelink-db
+          property: connectionString
       - key: JWT_SECRET
         sync: false
 
@@ -54,7 +56,9 @@ services:
       - key: PORT
         value: 5002
       - key: DATABASE_URL
-        value: mysql://admin:password@aiven-mysql-host:3306/tnpdb
+        fromDatabase:
+          name: hirelink-db
+          property: connectionString
       - key: MATCHING_SERVICE_URL
         value: https://hirelink-matching-service.onrender.com
 
@@ -72,3 +76,7 @@ services:
         value: https://hirelink-tnp-core-service.onrender.com
       - key: MONGODB_URI
         sync: false
+
+databases:
+  - name: hirelink-db
+    plan: free
