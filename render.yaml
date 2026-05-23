@@ -74,8 +74,6 @@ services:
         value: 5003
       - key: TNP_CORE_SERVICE_URL
         value: https://hirelink-tnp-core-service.onrender.com
-      - key: MONGODB_URI
-        sync: false
 
 databases:
   - name: hirelink-db
