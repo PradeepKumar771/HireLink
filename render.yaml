@@ -1,9 +1,10 @@
 services:
   # Frontend Static Site
-  - type: static
+  - type: web
     name: hirelink-frontend
+    runtime: static
     buildCommand: npm install && npm run build
-    publishPath: dist
+    staticPublishPath: dist
     headers:
       - key: Cache-Control
         value: public, max-age=31536000
