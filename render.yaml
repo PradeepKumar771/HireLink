@@ -37,7 +37,7 @@ services:
     runtime: node
     rootDir: services/auth-service
     plan: free
-    buildCommand: npm install && npx prisma generate && npm run build
+    buildCommand: npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build && mkdir -p dist/generated && cp -r src/generated/client dist/generated/
     startCommand: npm run start
     envVars:
       - key: PORT
@@ -55,7 +55,7 @@ services:
     runtime: node
     rootDir: services/tnp-core-service
     plan: free
-    buildCommand: npm install && npx prisma generate && npm run build
+    buildCommand: npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build && mkdir -p dist/generated && cp -r src/generated/client dist/generated/
     startCommand: npm run start
     envVars:
       - key: PORT

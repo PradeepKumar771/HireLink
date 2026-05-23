@@ -79,15 +79,17 @@ app.use(
         }
       },
       proxyRes: (proxyRes, req, res) => {
+        const anyReq = req as any;
+        const anyRes = res as any;
         let body = '';
         proxyRes.on('data', (chunk) => { body += chunk; });
         proxyRes.on('end', () => {
-          const ip = req.ip || req.socket.remoteAddress || 'unknown';
+          const ip = anyReq.ip || anyReq.socket?.remoteAddress || 'unknown';
           
           try {
             const data = JSON.parse(body);
             // Intercept failed login attempts at Gateway Level!
-            if (req.path.startsWith('/login')) {
+            if (anyReq.path?.startsWith('/login')) {
               if (data.success) {
                 clearFailedLoginRecord(ip);
               } else {
@@ -95,10 +97,10 @@ app.use(
                 data.message = `${data.message} (Security Warning: ${count}/3 failed attempts before lockout)`;
               }
             }
-            res.status(proxyRes.statusCode || 200).json(data);
+            anyRes.status(proxyRes.statusCode || 200).json(data);
           } catch (err) {
             // Forward raw if parsing fails
-            res.status(proxyRes.statusCode || 500).send(body);
+            anyRes.status(proxyRes.statusCode || 500).send(body);
           }
         });
       },

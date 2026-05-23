@@ -1,0 +1,20 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String // STUDENT, COLLEGE_TNP_OFFICER, RECRUITER, ADMIN
+  collegeId    String // Tenant boundary (e.g. "MIT", "Stanford")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
