@@ -6,7 +6,8 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     headers:
-      - key: Cache-Control
+      - path: /*
+        name: Cache-Control
         value: public, max-age=31536000
 
   # API Gateway Web Service
