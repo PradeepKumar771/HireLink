@@ -22,7 +22,7 @@
     "prisma:migrate:auth": "npm run prisma:migrate --workspace=services/auth-service",
     "prisma:migrate:tnp": "npm run prisma:migrate --workspace=services/tnp-core-service",
     "prisma:migrate": "npm run prisma:migrate:auth && npm run prisma:migrate:tnp",
-    "build": "npm run prisma:generate && npm run build --workspaces --if-present",
+    "build": "npm run prisma:generate && npm run build --workspace=api-gateway --workspace=services/auth-service --workspace=services/tnp-core-service --workspace=services/matching-service --if-present",
     "start:gateway": "npm run start --workspace=api-gateway",
     "start:auth": "npm run start --workspace=services/auth-service",
     "start:tnp": "npm run start --workspace=services/tnp-core-service",
