@@ -19,7 +19,8 @@ app.use((req, res, next) => {
       try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
+        const paddedBase64 = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+        const jsonPayload = Buffer.from(paddedBase64, 'base64').toString('utf8');
         const decoded = JSON.parse(jsonPayload);
         if (decoded) {
           req.headers['x-user-id'] = decoded.userId;

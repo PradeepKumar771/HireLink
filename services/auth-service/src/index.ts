@@ -80,7 +80,7 @@ app.use(express.json());
 const getScopesForRole = (role: string): string[] => {
   switch (role.toUpperCase()) {
     case 'STUDENT':
-      return ['jobs:read', 'applications:apply', 'profile:write'];
+      return ['jobs:read', 'applications:read', 'applications:apply', 'profile:write'];
     case 'RECRUITER':
       return ['jobs:write', 'applications:read', 'applications:write'];
     case 'COLLEGE_TNP_OFFICER':
