@@ -32,7 +32,7 @@
     "prestart": "npm run prisma:migrate",
     "start": "npm run start:production"
   },
-  "devDependencies": {
+  "dependencies": {
     "concurrently": "^8.2.2"
   }
 }
