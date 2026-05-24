@@ -28,7 +28,9 @@
     "start:tnp": "npm run start --workspace=services/tnp-core-service",
     "start:matching": "npm run start --workspace=services/matching-service",
     "prestart:production": "npm run prisma:migrate",
-    "start:production": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:tnp\" \"npm run start:matching\""
+    "start:production": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:tnp\" \"npm run start:matching\"",
+    "prestart": "npm run prisma:migrate",
+    "start": "npm run start:production"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
