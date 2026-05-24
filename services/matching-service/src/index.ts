@@ -142,7 +142,7 @@ app.post('/match-job', async (req, res) => {
     }
 
     if (major && major.toLowerCase() !== 'any' && candidate.major.toLowerCase() !== major.toLowerCase()) {
-      console.log(`[Matching Engine] Student ${candidate.studentName} disqualified (Major: ${candidate.gpa} !== Required: ${major})`);
+      console.log(`[Matching Engine] Student ${candidate.studentName} disqualified (Major: ${candidate.major} !== Required: ${major})`);
       continue;
     }
 

@@ -3,19 +3,64 @@ import { PrismaClient } from '@prisma/client-tnp';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
+
+// Dynamic Self-Healing database provider adjustment
+const adjustDatabaseProvider = () => {
+  try {
+    const dbUrl = process.env.DATABASE_URL || 'file:./dev.db';
+    const schemaPath = path.resolve(__dirname, '../prisma/schema.prisma');
+    if (!fs.existsSync(schemaPath)) {
+      console.warn('[Self-Healing] Schema file not found at:', schemaPath);
+      return;
+    }
+
+    let schemaContent = fs.readFileSync(schemaPath, 'utf8');
+    const isSqlite = dbUrl.startsWith('file:') || dbUrl.startsWith('sqlite:');
+    const targetProvider = isSqlite ? 'sqlite' : 'postgresql';
+    const currentProviderMatch = schemaContent.match(/datasource\s+db\s*\{\s*provider\s*=\s*"([^"]+)"/);
+
+    if (currentProviderMatch && currentProviderMatch[1] !== targetProvider) {
+      console.log(`[Self-Healing] Database URL protocol detected for ${isSqlite ? 'SQLite' : 'PostgreSQL'}. Adjusting schema provider to "${targetProvider}"...`);
+      
+      // Update provider under datasource db block
+      schemaContent = schemaContent.replace(
+        /(datasource\s+db\s*\{\s*provider\s*=\s*")[^"]+("\s*)/,
+        `$1${targetProvider}$2`
+      );
+
+      fs.writeFileSync(schemaPath, schemaContent, 'utf8');
+      console.log(`[Self-Healing] Schema successfully updated. Regenerating Prisma Client...`);
+      execSync(`npx prisma generate --schema="${schemaPath}"`, { stdio: 'inherit' });
+    }
+  } catch (err: any) {
+    console.error('[Self-Healing] Failed to adjust database provider:', err.message);
+  }
+};
+
+adjustDatabaseProvider();
 
 // Run self-healing database migrations programmatically before initializing Prisma
 try {
   console.log('[Core] Running self-healing database migrations...');
-  execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+  const schemaPath = path.resolve(__dirname, '../prisma/schema.prisma');
+  execSync(`npx prisma db push --accept-data-loss --schema="${schemaPath}"`, { stdio: 'inherit' });
   console.log('[Core] Database migrations completed successfully!');
 } catch (err) {
   console.error('[Core] Failed to run database migrations programmatically:', err);
 }
 
-const prisma = new PrismaClient();
+// Reload Prisma Client from disk to pick up SQLite/PostgreSQL provider adjustments
+Object.keys(require.cache).forEach((key) => {
+  if (key.includes('@prisma/client-tnp')) {
+    delete require.cache[key];
+  }
+});
+const { PrismaClient: DynamicPrismaClient } = require('@prisma/client-tnp');
+const prisma = new DynamicPrismaClient();
 const app = express();
 const PORT = process.env.PORT || 5002;
 const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL || 'http://localhost:5003';
@@ -72,6 +117,11 @@ const logSecurityEvent = (req: Request, eventType: SecurityAuditLog['eventType']
 };
 
 const requireGatewayHeaders = (req: Request, res: Response, next: NextFunction) => {
+  // Bypass gateway token checks for secure internal microservice interactions and health probes
+  if (req.path === '/health' || req.path === '/notify-match') {
+    return next();
+  }
+
   const userId = req.headers['x-user-id'] as string;
   const role = req.headers['x-user-role'] as string;
   const collegeId = req.headers['x-user-college-id'] as string;

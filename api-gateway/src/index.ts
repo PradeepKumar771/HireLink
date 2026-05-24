@@ -139,6 +139,14 @@ app.use(
         if (req.headers['x-user-email']) proxyReq.setHeader('x-user-email', req.headers['x-user-email'] as string);
         if (req.headers['x-user-name']) proxyReq.setHeader('x-user-name', req.headers['x-user-name'] as string);
         if (req.headers['x-user-scopes']) proxyReq.setHeader('x-user-scopes', req.headers['x-user-scopes'] as string);
+
+        // Forward the parsed request body stream back into the proxy
+        if ((req as any).body) {
+          const bodyData = JSON.stringify((req as any).body);
+          proxyReq.setHeader('Content-Type', 'application/json');
+          proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+          proxyReq.write(bodyData);
+        }
       },
       error: (err, req, res) => {
         (res as any).status(503).json({
@@ -167,6 +175,14 @@ app.use(
         if (req.headers['x-user-email']) proxyReq.setHeader('x-user-email', req.headers['x-user-email'] as string);
         if (req.headers['x-user-name']) proxyReq.setHeader('x-user-name', req.headers['x-user-name'] as string);
         if (req.headers['x-user-scopes']) proxyReq.setHeader('x-user-scopes', req.headers['x-user-scopes'] as string);
+
+        // Forward the parsed request body stream back into the proxy
+        if ((req as any).body) {
+          const bodyData = JSON.stringify((req as any).body);
+          proxyReq.setHeader('Content-Type', 'application/json');
+          proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+          proxyReq.write(bodyData);
+        }
       },
       error: (err, req, res) => {
         (res as any).status(503).json({

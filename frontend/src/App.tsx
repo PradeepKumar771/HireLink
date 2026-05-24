@@ -450,7 +450,11 @@ export default function App() {
 
   const handleSubmitJob = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newJobTitle || !newJobCompany || !newJobSkills) return;
+    if (!newJobTitle || !newJobCompany || !newJobSkills || !newJobDesc) {
+      setErrorMessage('Please fill in all required fields (Job Designation, Corporation, Skills, and Role Overview).');
+      setTimeout(() => setErrorMessage(''), 5000);
+      return;
+    }
     
     setLoading(true);
     setErrorMessage('');
@@ -479,6 +483,7 @@ export default function App() {
       }
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || 'Failed to submit job.');
+      setTimeout(() => setErrorMessage(''), 5000);
     } finally {
       setLoading(false);
     }
@@ -1414,6 +1419,13 @@ export default function App() {
             <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl text-xs flex items-center gap-2 shadow-sm">
               <CheckCircle className="w-4 h-4 text-emerald-500" />
               <span>{successMessage}</span>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="p-4 bg-rose-50 border border-rose-100 text-rose-700 rounded-xl text-xs flex items-center gap-2 shadow-sm">
+              <AlertCircle className="w-4 h-4 text-rose-500" />
+              <span>{errorMessage}</span>
             </div>
           )}
 
