@@ -24,6 +24,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-role', 'x-user-college-id', 'x-user-email', 'x-user-name']
 }));
 
+// Preflight OPTIONS handler to guarantee CORS checks always succeed immediately
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // Apply basic security headers and rate limiter
 app.use(securityHeaders);
 app.use('/api/', apiLimiter);
