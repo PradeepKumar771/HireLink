@@ -2,8 +2,18 @@ import express, { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client-tnp';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { execSync } from 'child_process';
 
 dotenv.config();
+
+// Run self-healing database migrations programmatically before initializing Prisma
+try {
+  console.log('[Core] Running self-healing database migrations...');
+  execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+  console.log('[Core] Database migrations completed successfully!');
+} catch (err) {
+  console.error('[Core] Failed to run database migrations programmatically:', err);
+}
 
 const prisma = new PrismaClient();
 const app = express();

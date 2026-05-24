@@ -3,8 +3,18 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client-auth';
 import dotenv from 'dotenv';
+import { execSync } from 'child_process';
 
 dotenv.config();
+
+// Run self-healing database migrations programmatically before initializing Prisma
+try {
+  console.log('[Auth] Running self-healing database migrations...');
+  execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+  console.log('[Auth] Database migrations completed successfully!');
+} catch (err) {
+  console.error('[Auth] Failed to run database migrations programmatically:', err);
+}
 
 const prisma = new PrismaClient() as any;
 const app = express();
