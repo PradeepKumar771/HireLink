@@ -16,7 +16,19 @@
     "dev:matching": "npm run dev --workspace=services/matching-service",
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:tnp\" \"npm run dev:matching\" \"npm run dev:frontend\"",
-    "build": "npm run build --workspaces --if-present"
+    "prisma:generate:auth": "npm run prisma:generate --workspace=services/auth-service",
+    "prisma:generate:tnp": "npm run prisma:generate --workspace=services/tnp-core-service",
+    "prisma:generate": "npm run prisma:generate:auth && npm run prisma:generate:tnp",
+    "prisma:migrate:auth": "npm run prisma:migrate --workspace=services/auth-service",
+    "prisma:migrate:tnp": "npm run prisma:migrate --workspace=services/tnp-core-service",
+    "prisma:migrate": "npm run prisma:migrate:auth && npm run prisma:migrate:tnp",
+    "build": "npm run prisma:generate && npm run build --workspaces --if-present",
+    "start:gateway": "npm run start --workspace=api-gateway",
+    "start:auth": "npm run start --workspace=services/auth-service",
+    "start:tnp": "npm run start --workspace=services/tnp-core-service",
+    "start:matching": "npm run start --workspace=services/matching-service",
+    "prestart:production": "npm run prisma:migrate",
+    "start:production": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:tnp\" \"npm run start:matching\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

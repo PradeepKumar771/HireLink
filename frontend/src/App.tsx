@@ -33,6 +33,13 @@ import {
 } from 'lucide-react';
 
 const getApiBase = () => {
+  if (import.meta.env.VITE_API_GATEWAY_URL) {
+    let url = import.meta.env.VITE_API_GATEWAY_URL;
+    if (!url.endsWith('/api') && !url.endsWith('/api/')) {
+      url = url.endsWith('/') ? `${url}api` : `${url}/api`;
+    }
+    return url;
+  }
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }

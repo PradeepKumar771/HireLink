@@ -85,6 +85,9 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -126,6 +129,11 @@ exports.Prisma.NotificationScalarFieldEnum = {
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 
@@ -171,17 +179,18 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "sqlite",
+  "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
-        "fromEnvVar": null,
-        "value": "file:./dev.db"
+        "fromEnvVar": "DATABASE_URL",
+        "value": null
       }
     }
   },
-  "inlineSchema": "datasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\nmodel Job {\n  id           String        @id @default(uuid())\n  title        String\n  companyName  String\n  description  String\n  skills       String // Comma-separated required skills\n  minGPA       Float         @default(0.0)\n  major        String        @default(\"Any\")\n  collegeId    String // Multi-tenant isolation key (e.g. \"MIT\", \"STANFORD\")\n  status       String        @default(\"OPEN\") // OPEN, CLOSED\n  applications Application[]\n  createdAt    DateTime      @default(now())\n}\n\nmodel Application {\n  id           String   @id @default(uuid())\n  jobId        String\n  studentId    String\n  studentName  String\n  studentEmail String\n  collegeId    String // Tenant isolation check\n  status       String   @default(\"PENDING\") // PENDING, REVIEWED, SELECTED, REJECTED\n  job          Job      @relation(fields: [jobId], references: [id])\n  createdAt    DateTime @default(now())\n}\n\nmodel Notification {\n  id        String   @id @default(uuid())\n  userId    String // Recipient ID\n  collegeId String // Tenant boundary\n  title     String\n  message   String\n  type      String // \"EMAIL\", \"ALERT\"\n  isRead    Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "b665d76f695e7a65be1acd4f4eeac70810257106549ad3af6d0bc9a686919640",
+  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\nmodel Job {\n  id           String        @id @default(uuid())\n  title        String\n  companyName  String\n  description  String\n  skills       String // Comma-separated required skills\n  minGPA       Float         @default(0.0)\n  major        String        @default(\"Any\")\n  collegeId    String // Multi-tenant isolation key (e.g. \"MIT\", \"STANFORD\")\n  status       String        @default(\"OPEN\") // OPEN, CLOSED\n  applications Application[]\n  createdAt    DateTime      @default(now())\n}\n\nmodel Application {\n  id           String   @id @default(uuid())\n  jobId        String\n  studentId    String\n  studentName  String\n  studentEmail String\n  collegeId    String // Tenant isolation check\n  status       String   @default(\"PENDING\") // PENDING, REVIEWED, SELECTED, REJECTED\n  job          Job      @relation(fields: [jobId], references: [id])\n  createdAt    DateTime @default(now())\n}\n\nmodel Notification {\n  id        String   @id @default(uuid())\n  userId    String // Recipient ID\n  collegeId String // Tenant boundary\n  title     String\n  message   String\n  type      String // \"EMAIL\", \"ALERT\"\n  isRead    Boolean  @default(false)\n  createdAt DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "1eea18785a83f673af73064e839065dc86fc7a6407356c3fe13ebe57ed1e78d5",
   "copyEngine": true
 }
 
@@ -190,8 +199,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "services/tnp-core-service/src/generated/client",
-    "tnp-core-service/src/generated/client",
+    "src/generated/client",
+    "generated/client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -220,7 +229,7 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "services/tnp-core-service/src/generated/client/query_engine-windows.dll.node")
+path.join(process.cwd(), "src/generated/client/query_engine-windows.dll.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "services/tnp-core-service/src/generated/client/schema.prisma")
+path.join(process.cwd(), "src/generated/client/schema.prisma")
