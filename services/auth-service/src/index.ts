@@ -12,7 +12,17 @@ dotenv.config();
 // Dynamic Self-Healing database provider adjustment
 const adjustDatabaseProvider = () => {
   try {
-    const dbUrl = process.env.DATABASE_URL || 'file:./dev.db';
+    let dbUrl = process.env.DATABASE_URL || 'file:./dev.db';
+    const isSqlite = dbUrl.startsWith('file:') || dbUrl.startsWith('sqlite:');
+
+    // Auto-isolate multi-service PostgreSQL schemas to prevent table dropping conflicts in Neon
+    if (!isSqlite && !dbUrl.includes('schema=')) {
+      const separator = dbUrl.includes('?') ? '&' : '?';
+      dbUrl = `${dbUrl}${separator}schema=auth_service`;
+      process.env.DATABASE_URL = dbUrl;
+      console.log('[Self-Healing] Isolated database schema detected as PostgreSQL. Appending "?schema=auth_service" parameter.');
+    }
+
     const schemaPath = path.resolve(__dirname, '../prisma/schema.prisma');
     if (!fs.existsSync(schemaPath)) {
       console.warn('[Self-Healing] Schema file not found at:', schemaPath);
@@ -20,7 +30,6 @@ const adjustDatabaseProvider = () => {
     }
 
     let schemaContent = fs.readFileSync(schemaPath, 'utf8');
-    const isSqlite = dbUrl.startsWith('file:') || dbUrl.startsWith('sqlite:');
     const targetProvider = isSqlite ? 'sqlite' : 'postgresql';
     const currentProviderMatch = schemaContent.match(/datasource\s+db\s*\{\s*provider\s*=\s*"([^"]+)"/);
 
