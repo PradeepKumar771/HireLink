@@ -131,12 +131,37 @@ const requireGatewayHeaders = (req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  const userId = req.headers['x-user-id'] as string;
-  const role = req.headers['x-user-role'] as string;
-  const collegeId = req.headers['x-user-college-id'] as string;
-  const email = req.headers['x-user-email'] as string;
-  const name = req.headers['x-user-name'] as string;
-  const rawScopes = req.headers['x-user-scopes'] as string;
+  let userId = req.headers['x-user-id'] as string;
+  let role = req.headers['x-user-role'] as string;
+  let collegeId = req.headers['x-user-college-id'] as string;
+  let email = req.headers['x-user-email'] as string;
+  let name = req.headers['x-user-name'] as string;
+  let rawScopes = req.headers['x-user-scopes'] as string;
+
+  if (!userId || !role || !collegeId) {
+    // Fail-safe fallback: If cloud load balancers strip custom X- headers, decode the Authorization JWT directly
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
+        const decoded = JSON.parse(jsonPayload);
+        if (decoded) {
+          userId = decoded.userId;
+          role = decoded.role;
+          collegeId = decoded.collegeId;
+          email = decoded.email;
+          name = decoded.name;
+          rawScopes = JSON.stringify(decoded.scopes || []);
+          console.log(`[Core] Fallback decoded JWT successfully for user: ${email}`);
+        }
+      } catch (err: any) {
+        console.warn('[Core] Fallback JWT decoding failed:', err.message);
+      }
+    }
+  }
 
   if (!userId || !role || !collegeId) {
     logSecurityEvent(req, 'UNAUTHORIZED_ACCESS', 'Direct API access attempted bypassing GateWay headers verification.');

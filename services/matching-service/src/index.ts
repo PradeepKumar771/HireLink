@@ -10,6 +10,34 @@ const TNP_CORE_SERVICE_URL = process.env.TNP_CORE_SERVICE_URL || 'http://localho
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  // Decode JWT if custom x- headers are missing
+  if (!req.headers['x-user-id'] || !req.headers['x-user-email']) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
+        const decoded = JSON.parse(jsonPayload);
+        if (decoded) {
+          req.headers['x-user-id'] = decoded.userId;
+          req.headers['x-user-role'] = decoded.role;
+          req.headers['x-user-college-id'] = decoded.collegeId;
+          req.headers['x-user-email'] = decoded.email;
+          req.headers['x-user-name'] = decoded.name;
+          req.headers['x-user-scopes'] = JSON.stringify(decoded.scopes || []);
+          console.log(`[Matching] Fallback decoded JWT successfully for user: ${decoded.email}`);
+        }
+      } catch (err: any) {
+        console.warn('[Matching] Fallback JWT decoding failed:', err.message);
+      }
+    }
+  }
+  next();
+});
+
 // In-Memory Resume Profile Database (Mock MongoDB Document Store)
 interface ResumeProfile {
   studentId: string;
