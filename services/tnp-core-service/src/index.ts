@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-tnp';
 import axios from 'axios';
 import dotenv from 'dotenv';
 
