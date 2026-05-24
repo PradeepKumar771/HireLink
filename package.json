@@ -28,7 +28,7 @@
     "start:tnp": "PORT=5002 npm run start --workspace=services/tnp-core-service",
     "start:matching": "PORT=5003 npm run start --workspace=services/matching-service",
     "prestart:production": "npm run prisma:migrate",
-    "start:production": "concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:tnp\" \"npm run start:matching\"",
+    "start:production": "npm run prisma:migrate && concurrently \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:tnp\" \"npm run start:matching\"",
     "prestart": "npm run prisma:migrate",
     "start": "npm run start:production"
   },
