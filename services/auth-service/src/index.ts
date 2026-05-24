@@ -82,7 +82,7 @@ const getScopesForRole = (role: string): string[] => {
     case 'STUDENT':
       return ['jobs:read', 'applications:read', 'applications:apply', 'profile:write'];
     case 'RECRUITER':
-      return ['jobs:write', 'applications:read', 'applications:write'];
+      return ['jobs:read', 'jobs:write', 'applications:read', 'applications:write'];
     case 'COLLEGE_TNP_OFFICER':
       return ['jobs:read', 'jobs:write', 'applications:read', 'applications:write', 'analytics:read'];
     case 'ADMIN':
